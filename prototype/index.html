@@ -3,130 +3,771 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Прототип: финансовая игра</title>
+<title>ФинИгра · Прототип</title>
+<link rel="icon" href="data:,">
 <style>
-:root{--bg:#f4f6fb;--card:#fff;--ink:#1d2433;--muted:#6b7385;--accent:#2f6fed;--ok:#1f9d55;--bad:#d64545;--line:#e3e7f0}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111622;--card:#1a2130;--ink:#e8ecf5;--muted:#9aa3b8;--accent:#5b8dff;--ok:#3ccf7a;--bad:#ff6b6b;--line:#2a3347}}
-:root[data-theme="dark"]{--bg:#111622;--card:#1a2130;--ink:#e8ecf5;--muted:#9aa3b8;--accent:#5b8dff;--ok:#3ccf7a;--bad:#ff6b6b;--line:#2a3347}
+:root{
+  --bg:#f3f5fb; --card:#ffffff; --ink:#1b2233; --muted:#667085; --line:#e4e8f2;
+  --accent:#4f46e5; --accent-2:#06b6d4; --ok:#15803d; --warn:#b45309; --bad:#b91c1c;
+  --shadow:0 10px 30px rgba(31,41,80,.08); --radius:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1322; --card:#171e31; --ink:#e7ebf5; --muted:#9aa4bd; --line:#27304a;
+    --accent:#818cf8; --accent-2:#22d3ee; --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1322; --card:#171e31; --ink:#e7ebf5; --muted:#9aa4bd; --line:#27304a;
+  --accent:#818cf8; --accent-2:#22d3ee; --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:flex;justify-content:center;padding:16px}
-.phone{width:100%;max-width:400px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 30px rgba(0,0,0,.08)}
-h1{font-size:20px;margin:0 0 4px}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+#app{max-width:440px;margin:0 auto;padding:16px 16px 104px;min-height:100vh}
+h1{font-size:22px;line-height:1.25;margin:6px 0 4px}
+h2{font-size:16px;margin:14px 0 8px}
+p{margin:6px 0}
 .muted{color:var(--muted);font-size:14px}
-.screen{display:none}
-.screen.active{display:block}
-label{display:block;font-size:14px;margin:12px 0 4px;color:var(--muted)}
-input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);font:inherit}
-button{width:100%;margin-top:14px;padding:12px;border:0;border-radius:12px;background:var(--accent);color:#fff;font:600 16px/1 system-ui,sans-serif;cursor:pointer}
-button.secondary{background:transparent;color:var(--accent);border:1px solid var(--line)}
-.card{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
-.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden}
-.bar>span{display:block;height:100%;background:var(--accent);transition:width .4s}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat b{display:block;font-size:18px}
-.opt{width:100%;text-align:left;background:transparent;color:var(--ink);border:1px solid var(--line);margin-top:8px}
-.feedback{border-left:4px solid var(--accent);padding:10px 12px;margin-top:12px;background:rgba(47,111,237,.07);border-radius:8px;font-size:14px}
-.good{color:var(--ok)} .bad{color:var(--bad)}
-.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.hero{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.hero .muted{color:rgba(255,255,255,.85)}
+.hero h1{color:#fff}
+.hero-row{display:flex;gap:14px;align-items:center}
+.hero-row>div{flex:1;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center}
+.stat b{display:block;font-size:14px;white-space:nowrap}
+.stat span{font-size:12px;color:var(--muted)}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:13px 16px;width:100%;background:var(--accent);color:#fff;font-weight:600;transition:transform .08s,opacity .2s}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.55;cursor:not-allowed}
+button:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px}
+button.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+button.btn-sm{width:auto;padding:8px 14px;font-size:14px;border-radius:10px}
+button.opt{background:var(--card);color:var(--ink);border:1px solid var(--line);text-align:left;font-weight:500;margin-top:10px;padding:14px}
+button.opt:not(:disabled):hover{border-color:var(--accent)}
+button.modcard{display:block;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);text-align:left;font-weight:400;padding:14px;margin-bottom:10px}
+button.back{background:none;color:var(--accent);width:auto;padding:4px 0;font-weight:600}
+button.av{background:var(--card);color:var(--ink);border:2px solid var(--line);padding:6px;font-weight:400;border-radius:16px}
+button.av.on{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,.18)}
+.av-svg svg{width:100%;height:auto;display:block}
+.avatar-big{width:132px;margin:0 auto 12px}
+.av-sm{width:64px;height:64px;border-radius:50%;background:#e8ecff;overflow:hidden;flex:none;border:2px solid rgba(255,255,255,.6)}
+.av-sm svg{width:100%;height:100%;display:block}
+.avgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+.row{display:flex;gap:10px;align-items:center}
+.grow{flex:1;min-width:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
+input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:6px}
+.bar{display:block;height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:10px}
+.bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px;transition:width .5s}
+.tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;background:var(--line);color:var(--muted);white-space:nowrap}
+.tag.ok{background:rgba(21,128,61,.14);color:var(--ok)}
+.pill{font-size:13px;color:var(--muted)}
+.feedback{border-left:4px solid var(--accent);padding:12px 14px;border-radius:12px;background:rgba(79,70,229,.08);margin-top:12px;animation:fade .3s ease}
+.feedback.good{border-color:var(--ok);background:rgba(21,128,61,.09)}
+.feedback.bad{border-color:var(--bad);background:rgba(185,28,28,.08)}
+.warn{border-left:4px solid var(--warn);padding:10px 12px;border-radius:12px;background:rgba(180,83,9,.08);font-size:14px;margin-top:10px}
+.hint{font-size:12px;color:var(--muted);margin-top:12px}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:440px;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+.nav button{background:none;color:var(--muted);width:auto;flex:1;padding:6px 2px;font-size:12px;font-weight:500;border-radius:10px}
+.nav button.on{color:var(--accent)}
+.nav .ic{display:block;font-size:20px;line-height:1.2}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500}
+ul{padding-left:18px;margin:6px 0}
+.plan{display:flex;justify-content:space-between;gap:10px;margin:6px 0;font-size:14px}
+@media (max-width:360px){ .stats{grid-template-columns:1fr 1fr} .avgrid{grid-template-columns:repeat(2,1fr)} }
 </style>
 </head>
 <body>
-<main class="phone">
-
-  <!-- Экран 1: вход -->
-  <section class="screen active" id="s-login">
-    <h1>Финансовая игра</h1>
-    <p class="muted">Прототип. Данные не сохраняются и не отправляются на сервер.</p>
-    <label for="email">E-mail</label>
-    <input id="email" type="email" placeholder="student@astanait.edu.kz">
-    <label for="pass">Пароль</label>
-    <input id="pass" type="password" placeholder="••••••">
-    <button onclick="show('s-home')">Войти</button>
-    <button class="secondary" onclick="show('s-home')">Регистрация</button>
-  </section>
-
-  <!-- Экран 2: главный -->
-  <section class="screen" id="s-home">
-    <h1>Привет, студент</h1>
-    <p class="muted">Ваш прогресс по модулям</p>
-    <div class="card">
-      <b>Личный бюджет</b> <span class="tag">Доступно</span>
-      <div class="bar" style="margin:10px 0"><span style="width:40%"></span></div>
-      <button onclick="startScenario()">Продолжить</button>
-    </div>
-    <div class="card">
-      <b>Кредиты и рассрочка</b> <span class="tag">Доступно</span>
-      <div class="bar" style="margin:10px 0"><span style="width:0%"></span></div>
-      <button class="secondary" onclick="startScenario()">Начать</button>
-    </div>
-    <div class="card">
-      <b>Мошенничество</b> <span class="tag">Скоро</span>
-    </div>
-    <button class="secondary" onclick="show('s-result')">Мой результат</button>
-  </section>
-
-  <!-- Экран 3: сценарий -->
-  <section class="screen" id="s-scenario">
-    <p class="muted">Шаг <span id="step">1</span> из 3 · Стипендия 45 000 ₸</p>
-    <div class="stats">
-      <div class="stat card"><span class="muted">Баланс</span><b id="bal">45 000 ₸</b></div>
-      <div class="stat card"><span class="muted">Накопления</span><b id="sav">0 ₸</b></div>
-    </div>
-    <div id="situation" class="card">
-      <b>Сегодня пришло сообщение: «Рассрочка 0% на телефон, первый взнос 5 000 ₸»</b>
-      <p class="muted">Как поступите?</p>
-      <button class="opt" onclick="decide(-5000,0,'Вы оформили рассрочку, но реальная переплата скрыта в условиях. Сначала сравните полную стоимость.')">Оформить рассрочку</button>
-      <button class="opt" onclick="decide(0,0,'Вы отказались и сохранили деньги. Хорошо — сначала оцените полную стоимость любой рассрочки.')">Отказаться</button>
-      <button class="opt" onclick="decide(-2000,2000,'Вы отложили часть денег и сравнили условия. Это разумно: сравнение и резерв снижают риск.')">Отложить 2 000 ₸ и изучить условия</button>
-    </div>
-    <div id="fb" class="feedback" style="display:none"></div>
-    <button id="next" style="display:none" onclick="nextStep()">Дальше</button>
-  </section>
-
-  <!-- Экран 4: результат -->
-  <section class="screen" id="s-result">
-    <h1>Результат</h1>
-    <p class="muted">Итог сессии считает сервер (FR-9)</p>
-    <div class="stats">
-      <div class="stat card"><span class="muted">Баланс</span><b>—</b></div>
-      <div class="stat card"><span class="muted">Очки</span><b>—</b></div>
-    </div>
-    <div class="card">
-      <b>Типичная ошибка</b>
-      <p class="muted">Заполняется по итогам категоризации решений (FR-12).</p>
-    </div>
-    <button class="secondary" onclick="show('s-home')">На главный экран</button>
-  </section>
-
-</main>
+<div id="app" aria-live="polite"></div>
+<nav class="nav" id="nav" aria-label="Основная навигация"></nav>
 
 <script>
-let step = 1, balance = 45000, savings = 0;
-function show(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-  window.scrollTo(0,0);
+/* ===== Константы и данные ===== */
+const KEY = 'finigra-proto-v3';
+const DEFAULT = {user:null, profile:null, balance:0, savings:0, debt:0, points:0, done:{}, errors:[], theme:null};
+const EXP_FIELDS = [['housing','Жильё (общежитие, аренда)'],['food','Питание'],['transport','Транспорт'],['phone','Связь и интернет'],['other','Прочее']];
+const AVATAR_PRESETS = [
+  {skin:'#f2c7a5', hair:'#2b2118', style:0, shirt:'#4f46e5'},
+  {skin:'#c68642', hair:'#14100c', style:1, shirt:'#06b6d4'},
+  {skin:'#8d5524', hair:'#14100c', style:2, shirt:'#16a34a'},
+  {skin:'#ffdbb4', hair:'#b45309', style:1, shirt:'#e11d48'},
+  {skin:'#f1c27d', hair:'#6b3e26', style:0, shirt:'#f59e0b'},
+  {skin:'#e0ac69', hair:'#111827', style:2, shirt:'#7c3aed'}
+];
+const META = {
+  s1: {module:'budget',  title:'Конец месяца: остаток и резерв', intro:'Распределите остаток после обязательных расходов и проверьте, как выдержите непредвиденную трату.'},
+  s2: {module:'credit',  title:'Рассрочка на телефон',           intro:'Магазин предлагает рассрочку «0%». Сравните полную стоимость покупки.'},
+  s3: {module:'credit',  title:'Кредитная карта: минимальный платёж', intro:'Долг 150 000 ₸ под 45% годовых. Как его гасить?'},
+  s4: {module:'fraud',   title:'Звонок «сотрудника банка»',     intro:'Незнакомец просит назвать код из SMS, чтобы «отменить перевод».'},
+  s5: {module:'fraud',   title:'Лёгкий заработок в мессенджере', intro:'Обещают 30% в неделю. Что вы сделаете?'},
+  s6: {module:'savings', title:'500 000 ₸ накоплений и инфляция', intro:'Инфляция 10% в год. Куда вложить сбережения?'}
+};
+const MODULES = [
+  {id:'budget',  title:'Личный бюджет',         desc:'Остаток, резерв и непредвиденные траты', icon:'💰'},
+  {id:'credit',  title:'Кредиты и рассрочка',   desc:'Полная стоимость и переплата',           icon:'💳'},
+  {id:'fraud',   title:'Мошенничество',         desc:'Как распознать опасную ситуацию',        icon:'🛡️'},
+  {id:'savings', title:'Накопления и инфляция', desc:'Реальная доходность и риски',            icon:'📈'}
+];
+const SCENARIO_IDS = Object.keys(META);
+const DEMO_GROUP = [
+  {code:'С-01', done:3, points:42, top:'нет резервного фонда'},
+  {code:'С-02', done:2, points:18, top:'неоправданное заимствование'},
+  {code:'С-03', done:4, points:65, top:'—'},
+  {code:'С-04', done:1, points:-10, top:'реакция на мошенничество'},
+  {code:'С-05', done:3, points:31, top:'инфляция не учтена'}
+];
+
+/* ===== Состояние ===== */
+function load(){ try { return JSON.parse(localStorage.getItem(KEY)); } catch(e){ return null; } }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} }
+let state = Object.assign(JSON.parse(JSON.stringify(DEFAULT)), load() || {});
+let route = state.user ? (state.profile ? 'home' : 'onb1') : 'auth';
+let authMode = 'login';
+let draft = null;       // черновик онбординга / редактирования профиля
+let ctx = null;         // текущий сценарий
+
+/* ===== Утилиты ===== */
+const $ = s => document.querySelector(s);
+const fmt = n => Math.round(n).toLocaleString('ru-RU') + ' ₸';
+const pct = x => Math.round(x * 100) + '%';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n = Number(String(v).replace(/\s/g,'').replace(',', '.')); return isNaN(n) || n < 0 ? NaN : n; };
+const totalExp = () => state.profile ? EXP_FIELDS.reduce((s, [k]) => s + (state.profile.exp[k] || 0), 0) : 0;
+const freeAmount = () => state.profile ? Math.max(0, state.profile.income - totalExp()) : 0;
+const monthlyTarget = () => totalExp() * 3;   // резерв: 3 месяца обязательных расходов
+const nextScenarioId = () => SCENARIO_IDS.find(id => !state.done[id]) || null;
+const stat = (label, value) => `<div class="stat"><b>${fmt(value)}</b><span>${label}</span></div>`;
+const topbar = (label, target) => `<div class="topbar"><button class="back" data-act="go" data-v="${target}">← ${label}</button></div>`;
+const R = (o, k) => typeof o[k] === 'function' ? o[k]() : o[k];
+
+/* Расчёты */
+function annuity(P, yearPct, n){
+  const r = yearPct / 1200;
+  const pay = P * r / (1 - Math.pow(1 + r, -n));
+  return {pay: Math.round(pay), total: Math.round(pay * n)};
 }
-function startScenario(){ step = 1; balance = 45000; savings = 0; render(); show('s-scenario'); }
-function render(){
-  document.getElementById('step').textContent = step;
-  document.getElementById('bal').textContent = balance.toLocaleString('ru-RU') + ' ₸';
-  document.getElementById('sav').textContent = savings.toLocaleString('ru-RU') + ' ₸';
-  document.getElementById('fb').style.display = 'none';
-  document.getElementById('next').style.display = 'none';
+function cardPayoff(debt, yearPct, payFn){
+  const r = yearPct / 1200;
+  let bal = debt, months = 0, total = 0;
+  while (bal > 0.5 && months < 600){
+    bal += bal * r;
+    const p = Math.min(payFn(bal), bal);
+    bal -= p; total += p; months++;
+  }
+  return {months, total: Math.round(total)};
 }
-function decide(dBal, dSav, text){
-  balance += dBal; savings += dSav;
-  document.getElementById('bal').textContent = balance.toLocaleString('ru-RU') + ' ₸';
-  document.getElementById('sav').textContent = savings.toLocaleString('ru-RU') + ' ₸';
-  const fb = document.getElementById('fb');
-  fb.textContent = text;
-  fb.style.display = 'block';
-  document.getElementById('next').style.display = 'block';
+function avatarSvg(a){
+  const back = a.style === 1
+    ? `<rect x="27" y="30" width="46" height="44" rx="22" fill="${a.hair}"/>`
+    : a.style === 2
+    ? `<g fill="${a.hair}"><circle cx="34" cy="30" r="9"/><circle cx="50" cy="26" r="10"/><circle cx="66" cy="30" r="9"/></g>`
+    : '';
+  const front = a.style === 2
+    ? `<path d="M29 43 Q31 30 50 31 Q69 30 71 43 Q60 36 50 37 Q40 36 29 43 Z" fill="${a.hair}"/>`
+    : `<path d="M28 43 Q28 22 50 22 Q72 22 72 43 Q62 33 50 35 Q38 33 28 43 Z" fill="${a.hair}"/>`;
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Аватар">
+    <circle cx="50" cy="50" r="48" fill="#e8ecff"/>
+    <path d="M18 100 C18 76 34 68 50 68 C66 68 82 76 82 100 Z" fill="${a.shirt}"/>
+    ${back}
+    <rect x="43" y="62" width="14" height="10" fill="${a.skin}"/>
+    <circle cx="50" cy="44" r="22" fill="${a.skin}"/>
+    ${front}
+    <circle cx="42" cy="46" r="2.6" fill="#1b2233"/><circle cx="58" cy="46" r="2.6" fill="#1b2233"/>
+    <path d="M43 56 Q50 62 57 56" stroke="#1b2233" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  </svg>`;
 }
+const sameAv = (a, b) => a && b && a.skin === b.skin && a.hair === b.hair && a.style === b.style && a.shirt === b.shirt;
+
+/* ===== Сценарии ===== */
+function buildSteps(sid){
+  const income = state.profile.income;
+  const free = freeAmount();
+  if (sid === 's1') {
+    const save10 = Math.round(free * 0.1);
+    return [
+      {text:`После обязательных расходов у вас остаётся ${fmt(free)}. Как распределите деньги?`, options:[
+        {label:'Потрачу всё на развлечения и покупки', d:{balance:-free}, points:-5, err:'нет резервного фонда', good:false, next:1,
+         why:'Резерва не осталось. Любая непредвиденная трата в следующем месяце станет долгом.'},
+        {label:`Отложу 10% (${fmt(save10)}) на отдельный счёт, остальное оставлю на карте`, d:{balance:-save10, savings:save10}, points:10, err:null, good:true, next:1,
+         why:'Резерв растёт, и он отделён от карты, поэтому его проще не трогать.'},
+        {label:'Оставлю всё на карте, разберусь по ходу месяца', d:{}, points:2, err:'нет резервного фонда', good:false, next:1,
+         why:'Деньги на карте незаметно тают. Резерв должен лежать на отдельном счёте.'}
+      ]},
+      {text:'Сломался телефон. Ремонт стоит 18 000 ₸. Как поступите?', options:[
+        {label:'Оплачу из накоплений, а если их нет, с карты',
+         d:() => state.savings >= 18000 ? {savings:-18000} : {balance:-18000},
+         points:8, err:null, good:() => state.savings + state.balance >= 18000,
+         why:() => state.savings >= 18000
+           ? 'Трата закрыта из резерва, без долгов. Так и должен работать резерв.'
+           : 'Резерва не хватило, поэтому трата ушла с карты. Без отложенных денег такая неожиданность съедает весь остаток.'},
+        {label:'Возьму микрокредит на 30 дней под 3% в месяц', d:{debt:18000}, points:-10, err:'неоправданное заимствование', good:false,
+         why:`Микрокредит 3% в месяц на 18 000 ₸ за 3 месяца даёт переплату ${fmt(18000 * 0.03 * 3)}. Проверьте, нельзя ли обойтись без займа.`},
+        {label:'Куплю ремонт в рассрочку «0%» на 6 месяцев', d:{debt:18000}, points:-3, err:'неоправданное заимствование', good:false,
+         why:'«0%» часто означает, что комиссия включена в цену. Сравните полную сумму, которую отдадите, с ценой за наличные.'}
+      ]}
+    ];
+  }
+  if (sid === 's2') {
+    const price = 240000, cash = 200000, first = 40000, months = 24;
+    const monthly = Math.round((price - first) / months);
+    const share = monthly / income;
+    const monthly12 = Math.round((price - first) / 12);
+    return [
+      {text:`Телефон стоит ${fmt(cash)} за наличные. Магазин предлагает «рассрочку 0%» на ${months} мес.: первый взнос ${fmt(first)}, итого вы заплатите ${fmt(price)}. Что выберете?`, options:[
+        {label:'Оформлю рассрочку: процентов же нет', d:{balance:-first, debt:cash}, points:-10, err:'неоправданное заимствование', good:false,
+         why:`Вы отдадите ${fmt(price)} вместо ${fmt(cash)}: переплата ${fmt(price - cash)}. «0%» не значит отсутствие переплаты. ` +
+             (share > 0.3 ? `Платёж ${fmt(monthly)} в месяц — это больше 30% вашего дохода.` : `Платёж ${fmt(monthly)} в месяц — примерно ${pct(share)} вашего дохода.`)},
+        {label:'Куплю модель дешевле за наличные или накоплю до покупки', d:{}, points:10, err:null, good:true,
+         why:'Вы сравнили полную стоимость и не взяли долг. Переплаты нет.'},
+        {label:`Оформлю рассрочку на 12 месяцев: платёж ${fmt(monthly12)} в месяц — меньше`, d:{balance:-first, debt:cash}, points:-6, err:'неоправданное заимствование', good:false,
+         why:`Платёж меньше, но переплата та же: ${fmt(price - cash)}. Меньший ежемесячный платёж не уменьшает переплату.`}
+      ]}
+    ];
+  }
+  if (sid === 's3') {
+    const a = cardPayoff(150000, 45, b => Math.max(3000, b * 0.05));
+    const b = cardPayoff(150000, 45, () => 15000);
+    const c = annuity(150000, 25, 24);
+    return [
+      {text:'На кредитной карте долг 150 000 ₸, ставка 45% годовых. Банк просит минимальный платёж (5% от долга, не меньше 3 000 ₸). Как будете гасить?', options:[
+        {label:'Буду платить минимум, так платить легче', d:{}, points:-10, err:'неоправданное заимствование', good:false,
+         why:`При минимальных платежах долг погасят за ${a.months} мес., и вы отдадите ${fmt(a.total)} при долге 150 000 ₸. Переплата почти равна долгу.`},
+        {label:'Буду платить 15 000 ₸ в месяц', d:{}, points:8, err:null, good:true,
+         why:`Так долг закроется за ${b.months} мес., и вы отдадите ${fmt(b.total)}. Переплата заметно меньше, чем при минимуме.`},
+        {label:'Возьму кредит на 24 месяца под 25% годовых, чтобы закрыть карту', d:{}, points:c.total < a.total ? 3 : -5,
+         err:c.total < a.total ? null : 'неоправданное заимствование', good:c.total < a.total,
+         why:`Платёж ${fmt(c.pay)} в месяц, всего ${fmt(c.total)}. ${c.total < a.total ? 'Это дешевле минимальных платежей по карте, но не дешевле платежа 15 000 ₸. Закрывать карту новым кредитом имеет смысл, только если не брать новых займов.' : 'Это не выгоднее минимальных платежей, поэтому смысла в переходе нет.'}`}
+      ]}
+    ];
+  }
+  if (sid === 's4') {
+    return [
+      {text:'Звонит «сотрудник службы безопасности банка» и просит назвать код из SMS, чтобы «отменить подозрительный перевод». Что делаете?', options:[
+        {label:'Назову код, чтобы не потерять деньги', d:{balance:-80000}, points:-20, err:'реакция на мошенничество', good:false, next:1,
+         why:'Код из SMS подтверждает перевод. Банк никогда не просит код по телефону, а звонящий забрал деньги.'},
+        {label:'Скажу, что перезвоню по номеру с обратной стороны карты', d:{}, points:15, err:null, good:true,
+         why:'Вы проверили информацию через официальный канал. Настоящий банк не возражает против проверки.'},
+        {label:'Положу трубку и проверю баланс в приложении банка', d:{}, points:12, err:null, good:true,
+         why:'Завершить разговор и самостоятельно зайти в приложение — безопасный ход.'}
+      ]},
+      {text:'Вы назвали код. Через минуту приходит SMS о переводе 80 000 ₸. Что делаете?', options:[
+        {label:'Сразу звоню в банк по номеру с карты и блокирую её', d:{}, points:10, err:null, good:true,
+         why:'Быстрая реакция может остановить перевод или ограничить ущерб.'},
+        {label:'Жду, может банк сам разберётся', d:{}, points:-5, err:'реакция на мошенничество', good:false,
+         why:'Ожидание ухудшает ситуацию: время важно для блокировки карты.'}
+      ]}
+    ];
+  }
+  if (sid === 's5') {
+    const yearly = Math.round((Math.pow(1.3, 4) - 1) * 100);
+    return [
+      {text:'В мессенджере предлагают работу: вложите 50 000 ₸ в «торговый бот» и получайте 30% в неделю. Первые выплаты уже пришли. Что делаете?', options:[
+        {label:'Вложу 50 000 ₸, раз первые выплаты пришли', d:{balance:-50000}, points:-20, err:'реакция на мошенничество', good:false,
+         why:`Первые выплаты — приманка. 30% в неделю при повторении четыре недели подряд дают около ${yearly}% за месяц. Надёжных инструментов с такой доходностью не бывает.`},
+        {label:'Откажусь и сообщу, что это похоже на мошенничество', d:{}, points:12, err:null, good:true,
+         why:'Обещанная доходность несопоставима с реальным рынком. Отказ — правильный ответ.'},
+        {label:'Попрошу договор и проверю компанию в официальных реестрах', d:{}, points:10, err:null, good:true,
+         why:'Проверка через официальные реестры и договор — правильный шаг. Если компании нет в реестре, это повод отказаться.'}
+      ]}
+    ];
+  }
+  if (sid === 's6') {
+    const savings = 500000;
+    const real = (1.14 / 1.10 - 1);
+    const gain = Math.round(savings * real);
+    return [
+      {text:'У вас 500 000 ₸ накоплений. Инфляция 10% в год, вклады предлагают 14% годовых. Что выберете?', options:[
+        {label:'Держать наличные дома, так надёжнее', d:{}, points:-5, err:'инфляция не учтена', good:false,
+         why:`Инфляция 10% в год: за год деньги теряют ${fmt(savings * 0.10)} покупательной способности. Наличные не защищают от инфляции.`},
+        {label:'Открыть вклад под 14% годовых', d:{}, points:10, err:null, good:true,
+         why:`Номинально вклад даёт 70 000 ₸ в год. С учётом инфляции реальный рост около ${fmt(gain)} в год. Это лучше, чем держать деньги без дохода.`},
+        {label:'Купить одну акцию, которую все советуют', d:{}, points:-5, err:'неоправданный риск', good:false,
+         why:'Одна бумага без диверсификации может потерять почти всю стоимость. Доходность никем не гарантируется.'}
+      ]}
+    ];
+  }
+  return [];
+}
+
+function resolveOpt(o){
+  return {
+    label: R(o, 'label'),
+    d: R(o, 'd') || {},
+    points: R(o, 'points'),
+    err: R(o, 'err') ?? null,
+    good: !!R(o, 'good'),
+    why: R(o, 'why'),
+    next: R(o, 'next')
+  };
+}
+
+function startScenario(sid){
+  ctx = {sid, module: META[sid].module, steps: buildSteps(sid), step: 0, picked: null, pickedIndex: null, log: []};
+  route = 'play';
+}
+
+function applyEffects(d){
+  state.balance = Math.max(0, state.balance + (d.balance || 0));
+  state.savings = Math.max(0, state.savings + (d.savings || 0));
+  state.debt = Math.max(0, state.debt + (d.debt || 0));
+}
+
+function choose(i){
+  if (!ctx || ctx.picked) return;
+  const st = ctx.steps[ctx.step];
+  const o = resolveOpt(st.options[i]);
+  ctx.pickedIndex = i;
+  ctx.picked = o;
+  applyEffects(o.d);
+  state.points += o.points;
+  if (o.err) state.errors.push({sid: ctx.sid, cat: o.err});
+  ctx.log.push({q: R(st, 'text'), a: o.label, good: o.good, why: o.why, points: o.points, err: o.err});
+  save();
+}
+
 function nextStep(){
-  if (step >= 3){ show('s-result'); return; }
-  step++; render();
+  if (!ctx || !ctx.picked) return;
+  if (typeof ctx.picked.next === 'number'){
+    ctx.step = ctx.picked.next;
+    ctx.picked = null;
+    ctx.pickedIndex = null;
+    return;
+  }
+  state.done[ctx.sid] = true;
+  save();
+  route = 'result';
 }
+
+/* ===== Экраны ===== */
+function viewAuth(){
+  const reg = authMode === 'register';
+  return `
+    <div class="hero" style="margin-top:24px">
+      <h1>ФинИгра</h1>
+      <p class="muted">Принимайте финансовые решения без реальных потерь</p>
+    </div>
+    <div class="card">
+      <div class="row">
+        <button class="btn-sm ${reg ? 'ghost' : ''}" data-act="authmode" data-v="login">Вход</button>
+        <button class="btn-sm ${reg ? '' : 'ghost'}" data-act="authmode" data-v="register">Регистрация</button>
+      </div>
+      <form id="authForm" novalidate>
+        ${reg ? `<label for="name">Имя и фамилия</label><input id="name" autocomplete="name">` : ''}
+        <label for="email">Почта</label>
+        <input id="email" type="email" autocomplete="email">
+        <label for="pass">Пароль (не короче 6 символов)</label>
+        <input id="pass" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}">
+        <div class="err" id="err" role="alert"></div>
+        <button type="submit" style="margin-top:8px">${reg ? 'Создать аккаунт' : 'Войти'}</button>
+      </form>
+      <p class="hint">Прототип: данные хранятся только в этом браузере и никуда не отправляются.</p>
+    </div>`;
+}
+
+function viewOnb1(){
+  const editing = !!state.profile;
+  const cur = AVATAR_PRESETS[draft.av];
+  const grid = AVATAR_PRESETS.map((a, i) =>
+    `<button class="av ${i === draft.av ? 'on' : ''}" data-act="pickav" data-v="${i}" aria-label="Вариант ${i + 1}"><span class="av-svg">${avatarSvg(a)}</span></button>`).join('');
+  return `
+    ${editing ? topbar('В профиль', 'profile') : ''}
+    <h1>${editing ? 'Аватар' : 'Создайте персонажа'}</h1>
+    <p class="muted">Так вас будут видеть в игре и в таблице группы.</p>
+    <div class="card">
+      <div class="avatar-big av-svg">${avatarSvg(cur)}</div>
+      <div class="avgrid">${grid}</div>
+      <label for="pname">Имя в игре</label>
+      <input id="pname" value="${esc(draft.name)}" maxlength="24" autocomplete="nickname">
+      <div class="err" id="err1" role="alert"></div>
+    </div>
+    <button data-act="onb1next">${editing ? 'Сохранить' : 'Далее: финансы'}</button>`;
+}
+
+function viewOnb2(){
+  const editing = !!state.profile;
+  const exp = EXP_FIELDS.map(([k, label]) => `
+    <div><label for="e-${k}">${label}</label>
+    <input id="e-${k}" inputmode="numeric" value="${esc(draft.exp[k])}" placeholder="0"></div>`).join('');
+  return `
+    ${topbar(editing ? 'В профиль' : 'Назад', editing ? 'profile' : 'onb1')}
+    <h1>Ваши финансы в месяц</h1>
+    <p class="muted">Введите свои цифры. Игра пересчитает сценарии под вас.</p>
+    <div class="card">
+      <label for="income">Доход в месяц (стипендия и подработка), ₸</label>
+      <input id="income" inputmode="numeric" value="${esc(draft.income)}" placeholder="например, 120000">
+      <h2>Обязательные расходы, ₸</h2>
+      <div class="grid2">${exp}</div>
+      <div class="plan" style="margin-top:14px"><span class="muted">Свободно в месяц</span><b id="free">${fmt(draftFree())}</b></div>
+      <div class="warn" id="warnFree" style="display:${draftFree() === 0 && num(draft.income) > 0 ? 'block' : 'none'}">Расходы больше дохода. В игре остаток будет считаться как 0.</div>
+    </div>
+    <div class="card">
+      <h2>Что уже есть</h2>
+      <div class="grid2">
+        <div><label for="savings">Накопления, ₸</label><input id="savings" inputmode="numeric" value="${esc(draft.savings)}" placeholder="0"></div>
+        <div><label for="debt">Долги, ₸</label><input id="debt" inputmode="numeric" value="${esc(draft.debt)}" placeholder="0"></div>
+      </div>
+      <div class="err" id="err2" role="alert"></div>
+    </div>
+    <button data-act="onb2next">${editing ? 'Сохранить' : 'Начать игру'}</button>`;
+}
+
+function draftFree(){
+  const inc = num(draft.income) || 0;
+  const sum = EXP_FIELDS.reduce((s, [k]) => s + (num(draft.exp[k]) || 0), 0);
+  return Math.max(0, inc - sum);
+}
+
+function avatarOf(p){ return avatarSvg(p ? p.avatar : AVATAR_PRESETS[0]); }
+
+function viewHome(){
+  const p = state.profile;
+  const first = nextScenarioId();
+  const target = monthlyTarget();
+  const reserveShare = target ? Math.min(100, Math.round(state.savings / target * 100)) : 0;
+  const cont = first
+    ? `<button data-act="start" data-v="${first}" style="margin-bottom:16px">Продолжить игру</button>`
+    : `<div class="card"><b>Все сценарии пройдены</b><p class="muted">Итоги — в разделе «Прогресс».</p></div>`;
+  return `
+    <div class="hero">
+      <div class="hero-row">
+        <div class="av-sm">${avatarOf(p)}</div>
+        <div>
+          <div class="muted">Здравствуйте,</div>
+          <h1 style="margin:2px 0 4px">${esc(p.name)}</h1>
+          <div class="muted">Очки: <b style="color:#fff">${state.points}</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="stats">${stat('Баланс', state.balance)}${stat('Накопления', state.savings)}${stat('Долг', state.debt)}</div>
+    <div class="card">
+      <div class="plan"><span class="muted">Доход в месяц</span><b>${fmt(p.income)}</b></div>
+      <div class="plan"><span class="muted">Обязательные расходы</span><b>${fmt(totalExp())}</b></div>
+      <div class="plan"><span class="muted">Свободно</span><b>${fmt(freeAmount())}</b></div>
+      <div class="plan"><span class="muted">Резерв (цель — 3 месяца расходов)</span><b>${fmt(target)}</b></div>
+      <span class="bar"><span style="width:${reserveShare}%"></span></span>
+      <p class="muted" style="font-size:12px;margin-top:6px">Накоплено ${reserveShare}% от цели</p>
+    </div>
+    ${cont}
+    <h2>Модули</h2>
+    ${modulesCards()}`;
+}
+
+function modulesCards(){
+  return MODULES.map(m => {
+    const ids = SCENARIO_IDS.filter(s => META[s].module === m.id);
+    const done = ids.filter(s => state.done[s]).length;
+    const share = Math.round(done / ids.length * 100);
+    return `<button class="modcard" data-act="module" data-v="${m.id}">
+      <span class="row">
+        <span style="font-size:26px">${m.icon}</span>
+        <span class="grow"><b>${esc(m.title)}</b><span class="muted" style="display:block;font-size:13px">${esc(m.desc)}</span></span>
+        <span class="tag ${share === 100 ? 'ok' : ''}">${share}%</span>
+      </span>
+      <span class="bar"><span style="width:${share}%"></span></span>
+    </button>`;
+  }).join('');
+}
+
+function viewModules(){
+  return `<h1>Модули</h1><p class="muted">Выберите тему и пройдите сценарии.</p>${modulesCards()}`;
+}
+
+function viewModule(){
+  const m = MODULES.find(x => x.id === ctx.module);
+  const items = SCENARIO_IDS.filter(s => META[s].module === m.id).map(sid => {
+    const d = state.done[sid];
+    return `<div class="card">
+      <div class="row"><b class="grow">${esc(META[sid].title)}</b><span class="tag ${d ? 'ok' : ''}">${d ? 'Пройдено' : 'Не начато'}</span></div>
+      <p class="muted">${esc(META[sid].intro)}</p>
+      <button class="btn-sm" data-act="start" data-v="${sid}" style="margin-top:8px">${d ? 'Пройти снова' : 'Начать'}</button>
+    </div>`;
+  }).join('');
+  return `${topbar('К модулям', 'modules')}<h1>${m.icon} ${esc(m.title)}</h1><p class="muted">${esc(m.desc)}</p>${items}`;
+}
+
+function viewPlay(){
+  const st = ctx.steps[ctx.step];
+  const picked = ctx.picked;
+  const fb = picked ? `
+    <div class="feedback ${picked.good ? 'good' : 'bad'}" role="status">
+      <b>${picked.good ? 'Хорошее решение' : 'Стоит пересмотреть'}</b>
+      <p>${esc(picked.why)}</p>
+      <span class="muted" style="font-size:13px">Очки: ${picked.points > 0 ? '+' : ''}${picked.points}${picked.err ? ' · ошибка: ' + esc(picked.err) : ''}</span>
+    </div>` : '';
+  const opts = st.options.map((o, i) => {
+    const label = R(o, 'label');
+    return `<button class="opt" data-act="choose" data-v="${i}" ${picked ? 'disabled' : ''}>${esc(label)}</button>`;
+  }).join('');
+  const last = picked && typeof picked.next !== 'number';
+  const btn = picked ? `<button data-act="next" style="margin-top:14px">${last ? 'Посмотреть итог' : 'Продолжить'}</button>` : '';
+  return `
+    <div class="topbar">
+      <button class="back" data-act="go" data-v="modules">← Выйти из сценария</button>
+      <span class="pill">Баланс ${fmt(state.balance)}</span>
+    </div>
+    <div class="hero" style="padding:16px">
+      <div class="muted" style="font-size:13px">${esc(META[ctx.sid].title)}</div>
+      <div style="font-size:17px;font-weight:600;margin-top:4px">${esc(R(st, 'text'))}</div>
+    </div>
+    ${opts}${fb}${btn}`;
+}
+
+function viewResult(){
+  const pts = ctx.log.reduce((s, x) => s + x.points, 0);
+  const good = ctx.log.filter(x => x.good).length;
+  const list = ctx.log.map(x => `
+    <div class="card">
+      <div class="muted" style="font-size:13px">${esc(x.q)}</div>
+      <b>${esc(x.a)}</b>
+      <div class="feedback ${x.good ? 'good' : 'bad'}">${esc(x.why)}</div>
+    </div>`).join('');
+  const errs = [...new Set(ctx.log.filter(x => x.err).map(x => x.err))];
+  const advice = errs.length
+    ? `<div class="card"><b>На что обратить внимание</b><ul>${errs.map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>`
+    : `<div class="card"><b>Ошибок в этом сценарии не было</b><p class="muted">Так и продолжайте.</p></div>`;
+  return `
+    ${topbar('К модулям', 'modules')}
+    <h1>Итог: ${esc(META[ctx.sid].title)}</h1>
+    <p class="muted">Хороших решений: ${good} из ${ctx.log.length}. Очки за сценарий: ${pts > 0 ? '+' : ''}${pts}</p>
+    ${list}
+    ${advice}
+    <button data-act="module" data-v="${META[ctx.sid].module}">К модулю</button>
+    <button class="ghost" data-act="go" data-v="progress" style="margin-top:10px">Смотреть прогресс</button>`;
+}
+
+function viewProgress(){
+  const doneCount = Object.keys(state.done).length;
+  const total = SCENARIO_IDS.length;
+  const counts = {};
+  state.errors.forEach(e => { counts[e.cat] = (counts[e.cat] || 0) + 1; });
+  const rows = Object.keys(counts).length
+    ? Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([c, n]) => `<tr><td>${esc(c)}</td><td style="text-align:right">${n}</td></tr>`).join('')
+    : `<tr><td colspan="2" class="muted">Ошибок пока нет</td></tr>`;
+  return `
+    <h1>Прогресс</h1>
+    <div class="card">
+      <b>Сценарии: ${doneCount} из ${total}</b>
+      <span class="bar"><span style="width:${Math.round(doneCount / total * 100)}%"></span></span>
+      <p class="muted">Очки: ${state.points}</p>
+    </div>
+    <div class="card"><h2>Категории ошибок</h2><table><tbody>${rows}</tbody></table></div>
+    <button class="ghost" data-act="reset">Сбросить прогресс</button>`;
+}
+
+function viewGroup(){
+  const rows = DEMO_GROUP.map(s => `<tr><td>${esc(s.code)}</td><td>${s.done}</td><td>${s.points}</td><td>${esc(s.top)}</td></tr>`).join('');
+  return `
+    <h1>Группа (демо)</h1>
+    <p class="muted">Пример статистики для преподавателя. Данные условные, к реальным студентам не относятся.</p>
+    <div class="card">
+      <table>
+        <thead><tr><th>Код</th><th>Сценариев</th><th>Очки</th><th>Частая ошибка</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <button class="ghost" data-act="csv">Скачать CSV (демо)</button>`;
+}
+
+function viewProfile(){
+  const u = state.user, p = state.profile;
+  const isT = u.role === 'teacher';
+  return `
+    <h1>Профиль</h1>
+    <div class="card">
+      <div class="hero-row">
+        <div class="av-sm" style="background:#e8ecff;border-color:var(--line)">${avatarOf(p)}</div>
+        <div class="grow"><b>${esc(p.name)}</b><p class="muted" style="margin:2px 0">${esc(u.email)}</p><span class="tag">${isT ? 'Преподаватель' : 'Студент'}</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Персонаж и финансы</h2>
+      <div class="row"><button class="btn-sm ghost" data-act="editav">Изменить аватар</button><button class="btn-sm ghost" data-act="editfin">Изменить финансы</button></div>
+      <p class="hint">Изменения финансов влияют на следующие сценарии. Текущий баланс и накопления не пересчитываются.</p>
+    </div>
+    <div class="card">
+      <h2>Роль (демо)</h2>
+      <div class="row">
+        <button class="btn-sm ${isT ? 'ghost' : ''}" data-act="role" data-v="student">Студент</button>
+        <button class="btn-sm ${isT ? '' : 'ghost'}" data-act="role" data-v="teacher">Преподаватель</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Тема оформления</h2>
+      <div class="row">
+        <button class="btn-sm ghost" data-act="theme" data-v="light">Светлая</button>
+        <button class="btn-sm ghost" data-act="theme" data-v="dark">Тёмная</button>
+      </div>
+    </div>
+    <button class="ghost" data-act="logout">Выйти</button>`;
+}
+
+const VIEWS = {auth:viewAuth, onb1:viewOnb1, onb2:viewOnb2, home:viewHome, modules:viewModules, module:viewModule,
+  play:viewPlay, result:viewResult, progress:viewProgress, group:viewGroup, profile:viewProfile};
+
+/* ===== Отрисовка ===== */
+function renderNav(){
+  const nav = $('#nav');
+  const hidden = !state.user || !state.profile || ['auth', 'onb1', 'onb2', 'play', 'result'].includes(route);
+  nav.style.display = hidden ? 'none' : '';
+  if (hidden) { nav.innerHTML = ''; return; }
+  const items = [['home','🏠','Главная'], ['modules','📚','Модули'], ['progress','📈','Прогресс']];
+  if (state.user.role === 'teacher') items.push(['group','👥','Группа']);
+  items.push(['profile','👤','Профиль']);
+  nav.innerHTML = items.map(([id, ic, label]) => {
+    const on = route === id || (id === 'modules' && route === 'module');
+    return `<button class="${on ? 'on' : ''}" data-act="go" data-v="${id}" ${on ? 'aria-current="page"' : ''}><span class="ic">${ic}</span>${label}</button>`;
+  }).join('');
+}
+
+function render(){
+  if (!state.user) route = 'auth';
+  if (route === 'group' && (!state.user || state.user.role !== 'teacher')) route = 'home';
+  if (state.user && !state.profile && !['auth','onb1','onb2'].includes(route)) route = 'onb1';
+  const view = VIEWS[route] || viewHome;
+  $('#app').innerHTML = view();
+  renderNav();
+}
+
+function startOnboarding(){
+  const p = state.profile;
+  draft = p
+    ? {name:p.name, av:Math.max(0, AVATAR_PRESETS.findIndex(a => sameAv(a, p.avatar))), income:String(p.income),
+       exp:Object.fromEntries(EXP_FIELDS.map(([k]) => [k, String(p.exp[k] || 0)])), savings:String(p.savings), debt:String(p.debt)}
+    : {name:state.user.name, av:0, income:'', exp:Object.fromEntries(EXP_FIELDS.map(([k]) => [k, ''])), savings:'', debt:''};
+  if (draft.av < 0) draft.av = 0;
+}
+
+/* ===== События ===== */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act, v = el.dataset.v;
+  switch (act) {
+    case 'go': route = v; break;
+    case 'module': route = 'module'; ctx = {module: v, sid: null}; break;
+    case 'start': startScenario(v); break;
+    case 'choose': choose(Number(v)); render(); return;
+    case 'next': nextStep(); break;
+    case 'authmode': authMode = v; break;
+    case 'pickav': draft.name = ($('#pname') ? $('#pname').value : draft.name); draft.av = Number(v); break;
+    case 'onb1next': {
+      const name = ($('#pname').value || '').trim();
+      if (!name) { $('#err1').textContent = 'Введите имя в игре'; return; }
+      draft.name = name;
+      route = 'onb2';
+      break;
+    }
+    case 'onb2next': {
+      const inc = num(($('#income').value || '').trim() || '0');
+      const fields = {};
+      for (const [k] of EXP_FIELDS) {
+        const raw = ($('#e-' + k).value || '').trim() || '0';
+        fields[k] = num(raw);
+        if (isNaN(fields[k])) { $('#err2').textContent = 'Проверьте расходы: только неотрицательные числа'; return; }
+      }
+      const sav = num(($('#savings').value || '').trim() || '0');
+      const debt = num(($('#debt').value || '').trim() || '0');
+      if (isNaN(inc) || inc <= 0) { $('#err2').textContent = 'Укажите доход больше 0'; return; }
+      if (isNaN(sav) || isNaN(debt)) { $('#err2').textContent = 'Накопления и долги — неотрицательные числа'; return; }
+      const profile = {
+        name: draft.name, avatar: AVATAR_PRESETS[draft.av], income: inc, exp: fields, savings: sav, debt
+      };
+      const firstTime = !state.profile;
+      state.profile = profile;
+      if (firstTime) {
+        state.balance = freeAmount();
+        state.savings = sav;
+        state.debt = debt;
+      }
+      save();
+      route = 'home';
+      break;
+    }
+    case 'editav': startOnboarding(); route = 'onb1'; break;
+    case 'editfin': startOnboarding(); route = 'onb2'; break;
+    case 'role': state.user.role = v; save(); break;
+    case 'theme': document.documentElement.dataset.theme = v; state.theme = v; save(); break;
+    case 'logout': state.user = null; save(); route = 'auth'; break;
+    case 'reset':
+      if (confirm('Сбросить баланс, очки и историю ошибок? Профиль останется.')) {
+        Object.assign(state, JSON.parse(JSON.stringify(DEFAULT)), {user: state.user, profile: state.profile, theme: state.theme});
+        state.balance = freeAmount(); state.savings = state.profile.savings; state.debt = state.profile.debt;
+        save();
+      }
+      break;
+    case 'csv': downloadCsv(); return;
+    default: return;
+  }
+  render();
+  window.scrollTo(0, 0);
+});
+
+document.addEventListener('input', e => {
+  if (!e.target.closest('#app') || route !== 'onb2' || !draft) return;
+  syncDraftFromInputs();
+  const f = $('#free'), w = $('#warnFree');
+  if (!f) return;
+  const free = draftFree();
+  f.textContent = fmt(free);
+  if (w) w.style.display = (free === 0 && (num(draft.income) || 0) > 0) ? 'block' : 'none';
+});
+
+function syncDraftFromInputs(){
+  const inc = $('#income'), sav = $('#savings'), debt = $('#debt');
+  if (inc) draft.income = inc.value;
+  if (sav) draft.savings = sav.value;
+  if (debt) draft.debt = debt.value;
+  EXP_FIELDS.forEach(([k]) => { const el = $('#e-' + k); if (el) draft.exp[k] = el.value; });
+}
+
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'authForm') return;
+  e.preventDefault();
+  const email = $('#email').value.trim();
+  const pass = $('#pass').value;
+  const nameEl = $('#name');
+  const err = $('#err');
+  if (nameEl && !nameEl.value.trim()) { err.textContent = 'Укажите имя'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Введите корректную почту'; return; }
+  if (pass.length < 6) { err.textContent = 'Пароль должен быть не короче 6 символов'; return; }
+  const name = nameEl ? nameEl.value.trim() : email.split('@')[0];
+  state.user = {name, email, role: state.user && state.user.role === 'teacher' ? 'teacher' : 'student'};
+  save();
+  if (!state.profile) { startOnboarding(); draft.name = name; route = 'onb1'; }
+  else route = 'home';
+  render();
+  window.scrollTo(0, 0);
+});
+
+function downloadCsv(){
+  const rows = [['Код','Сценариев пройдено','Очки','Частая ошибка'], ...DEMO_GROUP.map(s => [s.code, s.done, s.points, s.top])];
+  const csv = rows.map(r => r.map(x => '"' + String(x).replace(/"/g, '""') + '"').join(';')).join('\n');
+  const blob = new Blob(['﻿' + csv], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'group-demo.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ===== Старт ===== */
+if (state.theme) document.documentElement.dataset.theme = state.theme;
+if (state.user && !state.profile) startOnboarding();
+render();
 </script>
 </body>
 </html>
