@@ -1,0 +1,22 @@
+# Секреты и локальные настройки
+.env
+*.env
+!config.example.env
+
+# Зависимости
+node_modules/
+.dart_tool/
+.pub-cache/
+build/
+
+# Логи и служебные файлы
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# Персональные данные (не коммитить)
+data/personal/
+exports/
