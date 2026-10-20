@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Прототип: финансовая игра</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#1d2433;--muted:#6b7385;--accent:#2f6fed;--ok:#1f9d55;--bad:#d64545;--line:#e3e7f0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111622;--card:#1a2130;--ink:#e8ecf5;--muted:#9aa3b8;--accent:#5b8dff;--ok:#3ccf7a;--bad:#ff6b6b;--line:#2a3347}}
+:root[data-theme="dark"]{--bg:#111622;--card:#1a2130;--ink:#e8ecf5;--muted:#9aa3b8;--accent:#5b8dff;--ok:#3ccf7a;--bad:#ff6b6b;--line:#2a3347}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:flex;justify-content:center;padding:16px}
+.phone{width:100%;max-width:400px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 30px rgba(0,0,0,.08)}
+h1{font-size:20px;margin:0 0 4px}
+.muted{color:var(--muted);font-size:14px}
+.screen{display:none}
+.screen.active{display:block}
+label{display:block;font-size:14px;margin:12px 0 4px;color:var(--muted)}
+input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);font:inherit}
+button{width:100%;margin-top:14px;padding:12px;border:0;border-radius:12px;background:var(--accent);color:#fff;font:600 16px/1 system-ui,sans-serif;cursor:pointer}
+button.secondary{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.card{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden}
+.bar>span{display:block;height:100%;background:var(--accent);transition:width .4s}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat b{display:block;font-size:18px}
+.opt{width:100%;text-align:left;background:transparent;color:var(--ink);border:1px solid var(--line);margin-top:8px}
+.feedback{border-left:4px solid var(--accent);padding:10px 12px;margin-top:12px;background:rgba(47,111,237,.07);border-radius:8px;font-size:14px}
+.good{color:var(--ok)} .bad{color:var(--bad)}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+</style>
+</head>
+<body>
+<main class="phone">
+
+  <!-- Экран 1: вход -->
+  <section class="screen active" id="s-login">
+    <h1>Финансовая игра</h1>
+    <p class="muted">Прототип. Данные не сохраняются и не отправляются на сервер.</p>
+    <label for="email">E-mail</label>
+    <input id="email" type="email" placeholder="student@astanait.edu.kz">
+    <label for="pass">Пароль</label>
+    <input id="pass" type="password" placeholder="••••••">
+    <button onclick="show('s-home')">Войти</button>
+    <button class="secondary" onclick="show('s-home')">Регистрация</button>
+  </section>
+
+  <!-- Экран 2: главный -->
+  <section class="screen" id="s-home">
+    <h1>Привет, студент</h1>
+    <p class="muted">Ваш прогресс по модулям</p>
+    <div class="card">
+      <b>Личный бюджет</b> <span class="tag">Доступно</span>
+      <div class="bar" style="margin:10px 0"><span style="width:40%"></span></div>
+      <button onclick="startScenario()">Продолжить</button>
+    </div>
+    <div class="card">
+      <b>Кредиты и рассрочка</b> <span class="tag">Доступно</span>
+      <div class="bar" style="margin:10px 0"><span style="width:0%"></span></div>
+      <button class="secondary" onclick="startScenario()">Начать</button>
+    </div>
+    <div class="card">
+      <b>Мошенничество</b> <span class="tag">Скоро</span>
+    </div>
+    <button class="secondary" onclick="show('s-result')">Мой результат</button>
+  </section>
+
+  <!-- Экран 3: сценарий -->
+  <section class="screen" id="s-scenario">
+    <p class="muted">Шаг <span id="step">1</span> из 3 · Стипендия 45 000 ₸</p>
+    <div class="stats">
+      <div class="stat card"><span class="muted">Баланс</span><b id="bal">45 000 ₸</b></div>
+      <div class="stat card"><span class="muted">Накопления</span><b id="sav">0 ₸</b></div>
+    </div>
+    <div id="situation" class="card">
+      <b>Сегодня пришло сообщение: «Рассрочка 0% на телефон, первый взнос 5 000 ₸»</b>
+      <p class="muted">Как поступите?</p>
+      <button class="opt" onclick="decide(-5000,0,'Вы оформили рассрочку, но реальная переплата скрыта в условиях. Сначала сравните полную стоимость.')">Оформить рассрочку</button>
+      <button class="opt" onclick="decide(0,0,'Вы отказались и сохранили деньги. Хорошо — сначала оцените полную стоимость любой рассрочки.')">Отказаться</button>
+      <button class="opt" onclick="decide(-2000,2000,'Вы отложили часть денег и сравнили условия. Это разумно: сравнение и резерв снижают риск.')">Отложить 2 000 ₸ и изучить условия</button>
+    </div>
+    <div id="fb" class="feedback" style="display:none"></div>
+    <button id="next" style="display:none" onclick="nextStep()">Дальше</button>
+  </section>
+
+  <!-- Экран 4: результат -->
+  <section class="screen" id="s-result">
+    <h1>Результат</h1>
+    <p class="muted">Итог сессии считает сервер (FR-9)</p>
+    <div class="stats">
+      <div class="stat card"><span class="muted">Баланс</span><b>—</b></div>
+      <div class="stat card"><span class="muted">Очки</span><b>—</b></div>
+    </div>
+    <div class="card">
+      <b>Типичная ошибка</b>
+      <p class="muted">Заполняется по итогам категоризации решений (FR-12).</p>
+    </div>
+    <button class="secondary" onclick="show('s-home')">На главный экран</button>
+  </section>
+
+</main>
+
+<script>
+let step = 1, balance = 45000, savings = 0;
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  window.scrollTo(0,0);
+}
+function startScenario(){ step = 1; balance = 45000; savings = 0; render(); show('s-scenario'); }
+function render(){
+  document.getElementById('step').textContent = step;
+  document.getElementById('bal').textContent = balance.toLocaleString('ru-RU') + ' ₸';
+  document.getElementById('sav').textContent = savings.toLocaleString('ru-RU') + ' ₸';
+  document.getElementById('fb').style.display = 'none';
+  document.getElementById('next').style.display = 'none';
+}
+function decide(dBal, dSav, text){
+  balance += dBal; savings += dSav;
+  document.getElementById('bal').textContent = balance.toLocaleString('ru-RU') + ' ₸';
+  document.getElementById('sav').textContent = savings.toLocaleString('ru-RU') + ' ₸';
+  const fb = document.getElementById('fb');
+  fb.textContent = text;
+  fb.style.display = 'block';
+  document.getElementById('next').style.display = 'block';
+}
+function nextStep(){
+  if (step >= 3){ show('s-result'); return; }
+  step++; render();
+}
+</script>
+</body>
+</html>
