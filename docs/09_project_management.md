@@ -55,3 +55,22 @@
 ## 9.6. Индивидуальный вклад
 
 Вклад оценивается по истории коммитов, закрытым задачам YouTrack и ревью Pull Request. Каждый участник фиксирует свои задачи и коммиты регулярно, а не загружает проект перед предзащитой.
+
+## 9.7. Статус задач на 20.10.2026
+
+| Задача | Исполнитель | Статус |
+|---|---|---|
+| DIP-1 Repository structure and README | Самандар | ✅ сделано |
+| DIP-2 Project proposal and scope | Жалгас | ✅ документ готов, согласование с руководителем — нет |
+| DIP-3 Evidence of relevance | Самандар (интервью — оба) | ⚠️ набор для интервью готов, интервью не проведены |
+| DIP-4 Literature review | Жалгас | ⚠️ 18 позиций; полные тексты 15–18 не прочитаны |
+| DIP-5 Existing systems comparison | Самандар | ⚠️ таблица ждёт проверки FinPro и SPENT |
+| DIP-6 Technology comparison | Жалгас | ✅ готово |
+| DIP-7 Requirements specification | Самандар | ✅ критерии приёмки есть у всех Must |
+| DIP-8 Architecture diagrams | Жалгас | ✅ PNG и SVG экспортированы |
+| DIP-9 UX prototype | Самандар | ✅ версия 2; проверить на телефоне |
+| DIP-10 Verification and evaluation plan | Жалгас | ⚠️ эталоны предварительные, нужна сверка с консультантом |
+| DIP-11 Project management and risks | Самандар | ✅ YouTrack и README подключены |
+| DIP-12 Supervisor feedback | Самандар | ❌ не начато, нужен доступ руководителя |
+| DIP-13 Pre-defense submission | Жалгас | ❌ тег ставится после DIP-12 |
+| DIP-14 Database schema draft | Жалгас | ❌ следующий этап, не для предзащиты |
