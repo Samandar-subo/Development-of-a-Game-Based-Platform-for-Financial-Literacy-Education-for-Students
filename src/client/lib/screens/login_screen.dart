@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
-import 'home_screen.dart';
+import 'onboarding_avatar_screen.dart';
 
 /// Экран входа и регистрации. Соответствует экрану входа прототипа.
 /// Данные никуда не отправляются: это каркас, без сервера.
@@ -50,8 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final email = _emailController.text.trim();
     final name = _registerMode ? _nameController.text.trim() : email.split('@').first;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => HomeScreen(name: name)),
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => OnboardingAvatarScreen(name: name)),
     );
   }
 

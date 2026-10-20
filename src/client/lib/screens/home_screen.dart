@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../models/user_profile.dart';
 import '../theme.dart';
+import '../utils/money.dart';
+import 'scenario_screen.dart';
 
 /// Главный экран: баланс, накопления, долг, личный план и модули.
-/// Соответствует главному экрану прототипа. Значения — демонстрационные.
+/// Значения берутся из профиля, введённого студентом на онбординге.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.name});
+  const HomeScreen({super.key, required this.profile});
 
-  final String name;
+  final UserProfile profile;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -15,51 +18,88 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _tab = 0;
+  late int _balance;
+  late int _savings;
+  late int _debt;
+  int _points = 0;
+  bool _budgetDone = false;
 
-  // Демонстрационные значения, как в прототипе (доход 120 000 ₸, расходы 108 000 ₸).
-  static const _income = 120000;
-  static const _expenses = 108000;
-  static const _balance = 12000;
-  static const _savings = 0;
-  static const _debt = 0;
+  @override
+  void initState() {
+    super.initState();
+    _balance = widget.profile.free;
+    _savings = widget.profile.savings;
+    _debt = widget.profile.debt;
+  }
 
-  static const _modules = [
-    _Module('Личный бюджет', 'Остаток, резерв и непредвиденные траты', '💰', 0.0),
-    _Module('Кредиты и рассрочка', 'Полная стоимость и переплата', '💳', 0.0),
-    _Module('Мошенничество', 'Как распознать опасную ситуацию', '🛡️', 0.0),
-    _Module('Накопления и инфляция', 'Реальная доходность и риски', '📈', 0.0),
-  ];
-
-  String _money(int value) {
-    final s = value.toString();
-    final buf = StringBuffer();
-    for (var i = 0; i < s.length; i++) {
-      if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
-      buf.write(s[i]);
-    }
-    return '$buf ₸';
+  Future<void> _openScenario() async {
+    final result = await Navigator.of(context).push<ScenarioResult>(
+      MaterialPageRoute(
+        builder: (_) => ScenarioScreen(
+          profile: widget.profile,
+          balance: _balance,
+          savings: _savings,
+          debt: _debt,
+        ),
+      ),
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      _balance = result.balance;
+      _savings = result.savings;
+      _debt = result.debt;
+      _points += result.points;
+      _budgetDone = true;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    const free = _income - _expenses;
-    const reserveTarget = _expenses * 3;
-    final reserveShare = reserveTarget == 0 ? 0.0 : (_savings / reserveTarget).clamp(0.0, 1.0);
+    final p = widget.profile;
+    final target = p.reserveTarget;
+    final reserveShare = target == 0 ? 0.0 : (_savings / target).clamp(0.0, 1.0);
 
     return Scaffold(
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _Greeting(name: widget.name),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [AppColors.accent, AppColors.accent2]),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: p.avatar.shirt,
+                    child: Text(p.avatar.emoji, style: const TextStyle(fontSize: 26)),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Здравствуйте,', style: TextStyle(color: Colors.white70)),
+                        Text(p.name,
+                            style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700)),
+                        Text('Очки: $_points', style: const TextStyle(color: Colors.white70)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 14),
             Row(
               children: [
-                _Stat(label: 'Баланс', value: _money(_balance)),
+                _Stat(label: 'Баланс', value: formatMoney(_balance)),
                 const SizedBox(width: 8),
-                _Stat(label: 'Накопления', value: _money(_savings)),
+                _Stat(label: 'Накопления', value: formatMoney(_savings)),
                 const SizedBox(width: 8),
-                _Stat(label: 'Долг', value: _money(_debt)),
+                _Stat(label: 'Долг', value: formatMoney(_debt)),
               ],
             ),
             const SizedBox(height: 14),
@@ -68,10 +108,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _PlanRow('Доход в месяц', _money(_income)),
-                    _PlanRow('Обязательные расходы', _money(_expenses)),
-                    _PlanRow('Свободно', _money(free)),
-                    _PlanRow('Резерв (цель — 3 месяца расходов)', _money(reserveTarget)),
+                    _PlanRow('Доход в месяц', formatMoney(p.income)),
+                    _PlanRow('Обязательные расходы', formatMoney(p.expenses)),
+                    _PlanRow('Свободно', formatMoney(p.free)),
+                    _PlanRow('Резерв (цель — 3 месяца расходов)', formatMoney(target)),
                     const SizedBox(height: 8),
                     LinearProgressIndicator(value: reserveShare),
                     const SizedBox(height: 6),
@@ -87,13 +127,26 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             FilledButton(
-              onPressed: () {},
+              key: const ValueKey('continue-game'),
+              onPressed: _openScenario,
               child: const Text('Продолжить игру'),
             ),
             const SizedBox(height: 16),
             Text('Модули', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 17)),
             const SizedBox(height: 8),
-            for (final m in _modules) _ModuleCard(module: m),
+            _ModuleCard(
+              title: 'Личный бюджет',
+              desc: 'Остаток, резерв и непредвиденные траты',
+              icon: '💰',
+              progress: _budgetDone ? 1 : 0,
+              onTap: _openScenario,
+            ),
+            for (final m in const [
+              ('Кредиты и рассрочка', 'Полная стоимость и переплата', '💳'),
+              ('Мошенничество', 'Как распознать опасную ситуацию', '🛡️'),
+              ('Накопления и инфляция', 'Реальная доходность и риски', '📈'),
+            ])
+              _ModuleCard(title: m.$1, desc: m.$2, icon: m.$3, progress: 0, onTap: null),
           ],
         ),
       ),
@@ -105,58 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
           NavigationDestination(icon: Text('📚'), label: 'Модули'),
           NavigationDestination(icon: Text('📈'), label: 'Прогресс'),
           NavigationDestination(icon: Text('👤'), label: 'Профиль'),
-        ],
-      ),
-    );
-  }
-}
-
-class _Module {
-  const _Module(this.title, this.desc, this.icon, this.progress);
-
-  final String title;
-  final String desc;
-  final String icon;
-  final double progress;
-}
-
-class _Greeting extends StatelessWidget {
-  const _Greeting({required this.name});
-
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [AppColors.accent, AppColors.accent2]),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          // Аватар-заглушка: в прототипе это SVG-персонаж, здесь — инициал.
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: Colors.white,
-            child: Text(
-              name.isEmpty ? '?' : name[0].toUpperCase(),
-              style: const TextStyle(fontSize: 24, color: AppColors.accent, fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Здравствуйте,', style: TextStyle(color: Colors.white70)),
-                Text(
-                  name,
-                  style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -177,9 +178,7 @@ class _Stat extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
           child: Column(
             children: [
-              FittedBox(
-                child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-              ),
+              FittedBox(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14))),
               const SizedBox(height: 2),
               Text(label, style: const TextStyle(color: AppColors.mutedLight, fontSize: 12)),
             ],
@@ -211,39 +210,53 @@ class _PlanRow extends StatelessWidget {
 }
 
 class _ModuleCard extends StatelessWidget {
-  const _ModuleCard({required this.module});
+  const _ModuleCard({
+    required this.title,
+    required this.desc,
+    required this.icon,
+    required this.progress,
+    required this.onTap,
+  });
 
-  final _Module module;
+  final String title;
+  final String desc;
+  final String icon;
+  final double progress;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final percent = (module.progress * 100).round();
+    final percent = (progress * 100).round();
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Text(module.icon, style: const TextStyle(fontSize: 26)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(module.title, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      Text(module.desc, style: const TextStyle(color: AppColors.mutedLight, fontSize: 13)),
-                    ],
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Text(icon, style: const TextStyle(fontSize: 26)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                        Text(desc, style: const TextStyle(color: AppColors.mutedLight, fontSize: 13)),
+                      ],
+                    ),
                   ),
-                ),
-                Text('$percent%', style: const TextStyle(color: AppColors.mutedLight, fontSize: 12)),
-              ],
-            ),
-            const SizedBox(height: 10),
-            LinearProgressIndicator(value: module.progress),
-          ],
+                  Text('$percent%', style: const TextStyle(color: AppColors.mutedLight, fontSize: 12)),
+                ],
+              ),
+              const SizedBox(height: 10),
+              LinearProgressIndicator(value: progress),
+            ],
+          ),
         ),
       ),
     );
