@@ -1,0 +1,60 @@
+{
+  "_note": "Предварительные эталонные значения (DIP-10). Получены по формулам, описанным ниже. Перед предзащитой их должен сверить консультант по финансам; до сверки статус — «предварительно».",
+  "_currency": "KZT, округление до целых тенге",
+  "installment_0_percent": {
+    "description": "Рассрочка «0%»: цена в рассрочке против цены за наличные",
+    "input": {"price_installment": 240000, "price_cash": 200000, "first_payment": 40000, "months": 24},
+    "expected": {"monthly_payment": 8333, "overpayment": 40000},
+    "formula": "overpayment = price_installment - price_cash; monthly = (price_installment - first_payment) / months",
+    "status": "предварительно"
+  },
+  "annuity_loan": {
+    "description": "Потребительский кредит с аннуитетными платежами",
+    "input": {"principal": 150000, "annual_rate_percent": 25, "months": 24},
+    "expected": {"monthly_payment": 8006, "total_paid": 192137},
+    "formula": "pay = P * r / (1 - (1 + r)^(-n)), r = annual/12/100; total = pay * n",
+    "status": "предварительно"
+  },
+  "credit_card_minimum_payment": {
+    "description": "Кредитная карта: минимальный платёж 5% от долга, но не менее 3 000 ₸",
+    "input": {"debt": 150000, "annual_rate_percent": 45, "payment_rule": "max(3000, 5% of balance)"},
+    "expected": {"months_to_repay": 101, "total_paid": 437194},
+    "formula": "ежемесячно: баланс += баланс * r (r = 45/12/100); платёж = min(правило, баланс); цикл до погашения",
+    "status": "предварительно; модель упрощённая (без комиссий и штрафов)"
+  },
+  "credit_card_fixed_payment": {
+    "description": "Кредитная карта: фиксированный платёж 15 000 ₸ в месяц",
+    "input": {"debt": 150000, "annual_rate_percent": 45, "monthly_payment": 15000},
+    "expected": {"months_to_repay": 13, "total_paid": 191554},
+    "formula": "как в credit_card_minimum_payment, платёж фиксированный",
+    "status": "предварительно; модель упрощённая"
+  },
+  "micro_loan_interest": {
+    "description": "Микрокредит 3% в месяц на 18 000 ₸, срок 3 месяца (простые проценты)",
+    "input": {"principal": 18000, "monthly_rate_percent": 3, "months": 3},
+    "expected": {"interest": 1620},
+    "formula": "interest = principal * monthly_rate * months (без капитализации)",
+    "status": "предварительно"
+  },
+  "inflation_loss": {
+    "description": "Потеря покупательной способности наличных при инфляции 10% в год",
+    "input": {"cash": 500000, "inflation_percent": 10},
+    "expected": {"loss_per_year": 50000},
+    "formula": "loss = cash * inflation",
+    "status": "предварительно"
+  },
+  "deposit_real_return": {
+    "description": "Вклад 14% годовых при инфляции 10%: реальный рост",
+    "input": {"deposit": 500000, "nominal_percent": 14, "inflation_percent": 10},
+    "expected": {"nominal_income": 70000, "real_gain": 18182},
+    "formula": "real_gain = deposit * ((1 + nominal) / (1 + inflation) - 1)",
+    "status": "предварительно"
+  },
+  "pyramid_monthly_return": {
+    "description": "30% в неделю, повторённые четыре недели подряд",
+    "input": {"weekly_percent": 30, "weeks": 4},
+    "expected": {"monthly_return_percent": 186},
+    "formula": "(1 + weekly)^weeks - 1",
+    "status": "предварительно"
+  }
+}
