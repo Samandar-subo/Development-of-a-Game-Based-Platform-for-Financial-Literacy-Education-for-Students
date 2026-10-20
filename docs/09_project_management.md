@@ -61,16 +61,17 @@
 | Задача | Исполнитель | Статус |
 |---|---|---|
 | DIP-1 Repository structure and README | Самандар | ✅ сделано |
-| DIP-2 Project proposal and scope | Жалгас | ✅ документ готов, согласование с руководителем — нет |
+| DIP-2 Project proposal and scope | Жалгас | ✅ PR #2 слит (версия 1.1); согласование с руководителем — нет |
 | DIP-3 Evidence of relevance | Самандар (интервью — оба) | ⚠️ набор для интервью готов, интервью не проведены |
-| DIP-4 Literature review | Жалгас | ⚠️ 18 позиций; полные тексты 15–18 не прочитаны |
+| DIP-4 Literature review | Жалгас | ⚠️ PR #4 слит; 9 научных публикаций с выходными данными; полные тексты 15, 16, 18 не прочитаны |
 | DIP-5 Existing systems comparison | Самандар | ⚠️ таблица ждёт проверки FinPro и SPENT |
 | DIP-6 Technology comparison | Жалгас | ✅ готово |
-| DIP-7 Requirements specification | Самандар | ✅ критерии приёмки есть у всех Must |
+| DIP-7 Requirements specification | Самандар | ✅ PR #1 слит; критерии приёмки есть у всех Must (FR-16–FR-19 добавлены) |
 | DIP-8 Architecture diagrams | Жалгас | ✅ PNG и SVG экспортированы |
 | DIP-9 UX prototype | Самандар | ✅ версия 2; проверить на телефоне |
-| DIP-10 Verification and evaluation plan | Жалгас | ⚠️ эталоны предварительные, нужна сверка с консультантом |
+| DIP-10 Verification and evaluation plan | Жалгас | ⚠️ PR #3 слит; эталоны предварительные, консультант по финансам не назначен |
 | DIP-11 Project management and risks | Самандар | ✅ YouTrack и README подключены |
 | DIP-12 Supervisor feedback | Самандар | ❌ не начато, нужен доступ руководителя |
 | DIP-13 Pre-defense submission | Жалгас | ❌ тег ставится после DIP-12 |
 | DIP-14 Database schema draft | Жалгас | ❌ следующий этап, не для предзащиты |
+| DIP-15 Flutter client skeleton | Самандар | ✅ PR #5 слит: вход, главный экран, 3 виджет-теста; сервера, сценариев, SVG-аватара и экранов «Прогресс» и «Профиль» пока нет |
