@@ -56,7 +56,7 @@ config/        Примеры конфигурации с placeholder-значе
 - **Аутентификация:** JWT с обновлением токена, RBAC (студент, преподаватель, администратор)
 - **Тесты:** Jest, Supertest, widget-тесты Flutter
 - **Развёртывание:** Docker
-- **Трекинг задач:** YouTrack — ссылка: `[вставить ссылку на YouTrack-проект]`
+- **Трекинг задач:** YouTrack — [financialiteracygame.youtrack.cloud/projects/DIP](https://financialiteracygame.youtrack.cloud/projects/DIP)
 
 ## Запуск и тестирование
 
