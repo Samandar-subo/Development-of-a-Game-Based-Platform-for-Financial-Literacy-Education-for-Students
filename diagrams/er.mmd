@@ -1,0 +1,30 @@
+erDiagram
+    USER ||--o{ GROUP_MEMBER : состоит
+    GROUP ||--o{ GROUP_MEMBER : содержит
+    GROUP ||--o{ ASSIGNMENT : получает
+    MODULE ||--o{ SCENARIO : включает
+    SCENARIO ||--o{ STEP : содержит
+    STEP ||--o{ OPTION : имеет
+    USER ||--o{ GAME_SESSION : проходит
+    SCENARIO ||--o{ GAME_SESSION : запускается
+    GAME_SESSION ||--o{ DECISION : фиксирует
+    OPTION ||--o{ DECISION : выбрана
+    DECISION }o--|| ERROR_CATEGORY : классифицируется
+    USER {
+      int id
+      string email
+      string role
+    }
+    GAME_SESSION {
+      int id
+      int user_id
+      int scenario_id
+      jsonb state
+      string status
+    }
+    DECISION {
+      int id
+      int session_id
+      int option_id
+      numeric balance_after
+    }

@@ -1,0 +1,29 @@
+flowchart LR
+    subgraph Client[Flutter-клиент]
+      UI[UI / экраны]
+      SM[State management]
+      SE[Сценарный движок - отображение]
+      HTTP[API-клиент]
+      TS[Безопасное хранение токена]
+    end
+    subgraph Server[Node.js / Express]
+      GW[Маршруты REST]
+      AUTH[Аутентификация и RBAC]
+      SIM[Сервис симуляции - расчёт последствий]
+      SCN[Сервис сценариев]
+      ANA[Аналитика и Teacher Mode]
+      REP[Экспорт отчётов]
+    end
+    DB[(PostgreSQL)]
+    UI --> SM --> SE
+    SM --> HTTP
+    HTTP --> GW
+    GW --> AUTH
+    GW --> SIM
+    GW --> SCN
+    GW --> ANA
+    ANA --> REP
+    SIM --> DB
+    SCN --> DB
+    ANA --> DB
+    AUTH --> DB

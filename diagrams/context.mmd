@@ -1,0 +1,7 @@
+flowchart LR
+    S[Студент] -->|игра, решения| APP[Мобильное приложение Flutter]
+    T[Преподаватель] -->|Teacher Mode| APP
+    A[Администратор] -->|управление контентом| APP
+    APP -->|REST API / JSON, HTTPS| API[Серверная часть Node.js/Express]
+    API --> DB[(PostgreSQL)]
+    API -->|экспорт| CSV[Отчёты CSV]
