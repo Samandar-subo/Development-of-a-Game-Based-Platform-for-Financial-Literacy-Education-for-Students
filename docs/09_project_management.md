@@ -62,16 +62,16 @@
 |---|---|---|
 | DIP-1 Repository structure and README | Самандар | ✅ сделано |
 | DIP-2 Project proposal and scope | Жалгас | ✅ PR #2 слит (версия 1.1); согласование с руководителем — нет |
-| DIP-3 Evidence of relevance | Самандар (интервью — оба) | ⚠️ набор для интервью готов, интервью не проведены |
+| DIP-3 Evidence of relevance | Самандар — 2 интервью, Жалгас — 2 интервью (всего 4; минимум 3) | ⚠️ набор для интервью готов, интервью не проведены |
 | DIP-4 Literature review | Жалгас | ⚠️ PR #4 слит; 9 научных публикаций с выходными данными; полные тексты 15, 16, 18 не прочитаны |
-| DIP-5 Existing systems comparison | Самандар | ⚠️ таблица ждёт проверки FinPro и SPENT |
+| DIP-5 Existing systems comparison | Самандар — SPENT, Жалгас — FinPro; один PR, автор — Самандар | ⚠️ таблица ждёт проверки FinPro и SPENT |
 | DIP-6 Technology comparison | Жалгас | ✅ готово |
 | DIP-7 Requirements specification | Самандар | ✅ PR #1 слит; критерии приёмки есть у всех Must (FR-16–FR-19 добавлены) |
 | DIP-8 Architecture diagrams | Жалгас | ✅ PNG и SVG экспортированы |
-| DIP-9 UX prototype | Самандар | ✅ версия 2; проверить на телефоне |
+| DIP-9 UX prototype | Самандар (прототип), Жалгас (проверка на телефоне) | ✅ версия 2; проверка на телефоне — Жалгас |
 | DIP-10 Verification and evaluation plan | Жалгас | ⚠️ PR #3 слит; эталоны предварительные, консультант по финансам не назначен |
-| DIP-11 Project management and risks | Самандар | ✅ YouTrack и README подключены |
-| DIP-12 Supervisor feedback | Самандар | ❌ не начато, нужен доступ руководителя |
+| DIP-11 Project management and risks | Жалгас (приоритеты и комментарии в YouTrack), Самандар (README и раздел 9.7) | ✅ YouTrack и README подключены; приоритеты и комментарии — Жалгас |
+| DIP-12 Supervisor feedback | Самандар (прототип и каркас), Жалгас (литература, расчёты, процесс); письмо руководителю — Жалгас | ❌ не начато, нужен доступ руководителя |
 | DIP-13 Pre-defense submission | Жалгас | ❌ тег ставится после DIP-12 |
 | DIP-14 Database schema draft | Жалгас | ❌ следующий этап, не для предзащиты |
 | DIP-15 Flutter client skeleton | Самандар | ✅ PR #5 слит: вход, главный экран, 3 виджет-теста; сервера, сценариев, SVG-аватара и экранов «Прогресс» и «Профиль» пока нет |
