@@ -64,7 +64,7 @@
 | DIP-2 Project proposal and scope | Жалгас | ✅ PR #2 слит (версия 1.1); согласование с руководителем — нет |
 | DIP-3 Evidence of relevance | Самандар — 2 интервью, Жалгас — 2 интервью (всего 4; минимум 3) | ⚠️ набор для интервью готов, интервью не проведены |
 | DIP-4 Literature review | Жалгас | ⚠️ PR #4 слит; 9 научных публикаций с выходными данными; полные тексты 15, 16, 18 не прочитаны |
-| DIP-5 Existing systems comparison | Самандар — SPENT, Жалгас — FinPro; один PR, автор — Самандар | ⚠️ таблица ждёт проверки FinPro и SPENT |
+| DIP-5 Existing systems comparison | Самандар — SPENT и FinPro (осмотр), Alatau City и BarsIQ добавлены; один PR, автор — Самандар | ⚠️ 4 системы, личная проверка частичная; полное прохождение Alatau City и BarsIQ после регистрации — нет |
 | DIP-6 Technology comparison | Жалгас | ✅ готово |
 | DIP-7 Requirements specification | Самандар | ✅ PR #1 слит; критерии приёмки есть у всех Must (FR-16–FR-19 добавлены) |
 | DIP-8 Architecture diagrams | Жалгас | ✅ PNG и SVG экспортированы |
