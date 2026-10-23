@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 12),
                           if (_registerMode) ...[
-                            const Text('Имя и фамилия', style: TextStyle(color: AppColors.mutedLight, fontSize: 13)),
+                            Text('Имя и фамилия', style: TextStyle(color: AppColors.muted(context), fontSize: 13)),
                             const SizedBox(height: 4),
                             TextFormField(
                               controller: _nameController,
@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             const SizedBox(height: 12),
                           ],
-                          const Text('Почта', style: TextStyle(color: AppColors.mutedLight, fontSize: 13)),
+                          Text('Почта', style: TextStyle(color: AppColors.muted(context), fontSize: 13)),
                           const SizedBox(height: 4),
                           TextFormField(
                             controller: _emailController,
@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             textInputAction: TextInputAction.next,
                           ),
                           const SizedBox(height: 12),
-                          const Text('Пароль (не короче 6 символов)', style: TextStyle(color: AppColors.mutedLight, fontSize: 13)),
+                          Text('Пароль (не короче 6 символов)', style: TextStyle(color: AppColors.muted(context), fontSize: 13)),
                           const SizedBox(height: 4),
                           TextFormField(
                             controller: _passController,
@@ -117,10 +117,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Text(_registerMode ? 'Создать аккаунт' : 'Войти'),
                           ),
                           const SizedBox(height: 12),
-                          const Text(
+                          Text(
                             'Каркас: данные хранятся только на устройстве и никуда не отправляются.',
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: AppColors.mutedLight, fontSize: 12),
+                            style: TextStyle(color: AppColors.muted(context), fontSize: 12),
                           ),
                         ],
                       ),

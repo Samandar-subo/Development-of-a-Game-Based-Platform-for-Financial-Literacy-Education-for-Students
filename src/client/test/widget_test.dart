@@ -18,6 +18,24 @@ Future<void> _login(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// Вход и онбординг: доход 120 000, расходы 108 000 → свободно 12 000, накоплений и долгов нет.
+Future<void> _onboard(WidgetTester tester) async {
+  await _login(tester);
+  await tester.tap(find.byKey(const ValueKey('avatar-next')));
+  await tester.pumpAndSettle();
+
+  final fields = find.byType(TextField);
+  await tester.enterText(fields.at(0), '120000');
+  await tester.enterText(fields.at(1), '40000');
+  await tester.enterText(fields.at(2), '50000');
+  await tester.enterText(fields.at(3), '10000');
+  await tester.enterText(fields.at(4), '3000');
+  await tester.enterText(fields.at(5), '5000');
+  await tester.pump();
+  await _tapKey(tester, 'finance-start');
+  await tester.pumpAndSettle();
+}
+
 void main() {
   test('formatMoney и parseMoney', () {
     expect(formatMoney(12000), '12 000 ₸');
@@ -86,20 +104,7 @@ void main() {
   });
 
   testWidgets('полный путь: онбординг → главный экран → сценарий → итог', (tester) async {
-    await _login(tester);
-    await tester.tap(find.byKey(const ValueKey('avatar-next')));
-    await tester.pumpAndSettle();
-
-    final fields = find.byType(TextField);
-    await tester.enterText(fields.at(0), '120000');
-    await tester.enterText(fields.at(1), '40000');
-    await tester.enterText(fields.at(2), '50000');
-    await tester.enterText(fields.at(3), '10000');
-    await tester.enterText(fields.at(4), '3000');
-    await tester.enterText(fields.at(5), '5000');
-    await tester.pump();
-    await _tapKey(tester, 'finance-start');
-    await tester.pumpAndSettle();
+    await _onboard(tester);
 
     expect(find.text('Здравствуйте,'), findsOneWidget);
     expect(find.text('12 000 ₸'), findsWidgets);
@@ -123,6 +128,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Итог: Конец месяца'), findsOneWidget);
+    // 12 000: 1 200 отложено, 10 800 на карте. Ремонт 18 000: 1 200 из резерва, 10 800 с карты, 6 000 в долг.
+    expect(find.textContaining('Долг 6 000 ₸'), findsOneWidget);
     expect(find.text('Вернуться домой'), findsOneWidget);
 
     await _tapKey(tester, 'scenario-finish');
@@ -130,5 +137,47 @@ void main() {
     // Главный экран снова открыт, а результат сценария применён: модуль «Личный бюджет» пройден.
     expect(find.byKey(const ValueKey('continue-game')), findsOneWidget);
     expect(find.text('100%'), findsWidgets);
+  });
+
+  testWidgets('нижняя навигация переключает вкладки', (tester) async {
+    await _onboard(tester);
+
+    await tester.tap(find.byKey(const ValueKey('nav-modules')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Пройдено 0 из 4'), findsOneWidget);
+    expect(find.text('Здравствуйте,'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('nav-progress')));
+    await tester.pumpAndSettle();
+    expect(find.text('Вы ещё не прошли ни одного сценария.'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('nav-profile')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('profile-name')), findsOneWidget);
+    expect(find.text('student'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('nav-home')));
+    await tester.pumpAndSettle();
+    expect(find.text('Здравствуйте,'), findsOneWidget);
+  });
+
+  testWidgets('выход из незавершённого сценария не меняет прогресс', (tester) async {
+    await _onboard(tester);
+
+    await _tapKey(tester, 'continue-game');
+    await tester.pumpAndSettle();
+    await _tapKey(tester, 'option-0-0');
+    await tester.pump();
+
+    await tester.tap(find.byKey(const ValueKey('scenario-close')));
+    await tester.pumpAndSettle();
+    expect(find.text('Выйти из сценария?'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('scenario-leave')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Здравствуйте,'), findsOneWidget);
+    expect(find.text('Очки: 0'), findsOneWidget);
+    expect(find.text('100%'), findsNothing);
+    expect(find.text('Начать игру'), findsOneWidget);
   });
 }

@@ -19,6 +19,10 @@ class AppColors {
   static const inkDark = Color(0xFFE7EBF5);
   static const mutedDark = Color(0xFF9AA4BD);
   static const lineDark = Color(0xFF27304A);
+
+  /// Приглушённый цвет текста с учётом текущей темы (светлая / тёмная).
+  static Color muted(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? mutedDark : mutedLight;
 }
 
 class AppTheme {

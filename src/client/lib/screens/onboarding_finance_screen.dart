@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/user_profile.dart';
+import '../theme.dart';
 import '../utils/money.dart';
 import 'home_screen.dart';
 
@@ -52,6 +53,12 @@ class _OnboardingFinanceScreenState extends State<OnboardingFinanceScreen> {
     return (income - expenses).clamp(0, income).toInt();
   }
 
+  bool _overspent() {
+    final income = parseMoney(_income.text) ?? 0;
+    final expenses = _expensesTotal() ?? 0;
+    return income > 0 && expenses > income;
+  }
+
   void _start() {
     final income = parseMoney(_income.text);
     final expenses = _expensesTotal();
@@ -66,6 +73,7 @@ class _OnboardingFinanceScreenState extends State<OnboardingFinanceScreen> {
       setState(() => _error = 'Укажите доход больше 0');
       return;
     }
+    setState(() => _error = null);
 
     final profile = UserProfile(
       name: widget.name,
@@ -77,7 +85,9 @@ class _OnboardingFinanceScreenState extends State<OnboardingFinanceScreen> {
     );
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => HomeScreen(profile: profile)),
-      (route) => route.isFirst,
+      // Экран входа и онбординг убираются из стека: «Назад» на главном не возвращает к входу.
+      // Выйти из аккаунта можно на вкладке «Профиль».
+      (route) => false,
     );
   }
 
@@ -129,6 +139,15 @@ class _OnboardingFinanceScreenState extends State<OnboardingFinanceScreen> {
                 ),
               ),
             ),
+            if (_overspent())
+              const Padding(
+                padding: EdgeInsets.only(top: 6),
+                child: Text(
+                  'Обязательные расходы больше дохода — свободных денег не остаётся.',
+                  key: ValueKey('overspent-warning'),
+                  style: TextStyle(color: AppColors.warn, fontSize: 13),
+                ),
+              ),
             const SizedBox(height: 12),
             const Text('Что уже есть', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),

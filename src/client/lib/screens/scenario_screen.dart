@@ -11,12 +11,22 @@ class ScenarioResult {
     required this.savings,
     required this.debt,
     required this.points,
+    required this.goodDecisions,
+    required this.totalDecisions,
+    required this.errors,
   });
 
   final int balance;
   final int savings;
   final int debt;
   final int points;
+
+  /// Сколько решений в сценарии было хорошими и сколько всего.
+  final int goodDecisions;
+  final int totalDecisions;
+
+  /// Ошибки, допущенные в сценарии (без повторов).
+  final List<String> errors;
 }
 
 class _Option {
@@ -138,18 +148,18 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
             label: 'Оплачу из накоплений, а если их нет — с карты',
             points: 8,
             good: true,
-            why: 'Трата закрыта без долгов. Если резерва не хватило, она ушла с карты, и остаток уменьшился.',
-            apply: (s) => s.savings >= 18000
-                ? _Effect(balance: s.balance, savings: s.savings - 18000, debt: s.debt)
-                : _Effect(balance: s.balance - 18000, savings: s.savings, debt: s.debt),
+            why: 'Трата закрыта из своих денег: сначала из резерва, недостающее — с карты. '
+                'Если и этого не хватило, остаток придётся занять — поэтому резерв так важен.',
+            apply: (s) => _payFromOwn(s, 18000),
           ),
           _Option(
-            label: 'Возьму микрокредит на 30 дней под 3% в месяц',
+            label: 'Возьму микрокредит на 3 месяца под 3% в месяц',
             points: -10,
             good: false,
             error: 'неоправданное заимствование',
-            why: 'Микрокредит 3% в месяц на 18 000 ₸ за 3 месяца даёт переплату ${formatMoney(1620)}. Проверьте, нельзя ли обойтись без займа.',
-            apply: (s) => _Effect(balance: s.balance, savings: s.savings, debt: s.debt + 18000),
+            why: 'Микрокредит 3% в месяц на 18 000 ₸ за 3 месяца даёт переплату ${formatMoney(1620)}: '
+                'вернуть придётся ${formatMoney(19620)}. Проверьте, нельзя ли обойтись без займа.',
+            apply: (s) => _Effect(balance: s.balance, savings: s.savings, debt: s.debt + 19620),
           ),
           _Option(
             label: 'Куплю ремонт в рассрочку «0%» на 6 месяцев',
@@ -164,12 +174,27 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     ];
   }
 
+  /// Оплата из своих денег: сначала накопления, затем карта, недостающее уходит в долг.
+  static _Effect _payFromOwn(_State s, int cost) {
+    var rest = cost;
+    final fromSavings = rest < s.savings ? rest : s.savings;
+    rest -= fromSavings;
+    final fromBalance = rest < s.balance ? rest : s.balance;
+    rest -= fromBalance;
+    return _Effect(
+      balance: s.balance - fromBalance,
+      savings: s.savings - fromSavings,
+      debt: s.debt + rest,
+    );
+  }
+
   _Step get _current => _steps[_step];
 
   void _choose(int index) {
     if (_chosen != null) return;
     final option = _current.options[index];
-    final effect = option.apply?.call(_state) ?? const _Effect(balance: 0, savings: 0, debt: 0);
+    final effect = option.apply?.call(_state) ??
+        _Effect(balance: _state.balance, savings: _state.savings, debt: _state.debt);
     setState(() {
       _chosen = index;
       _state.balance = effect.balance < 0 ? 0 : effect.balance;
@@ -199,24 +224,65 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     }
   }
 
-  void _exit() {
-    Navigator.of(context).pop(ScenarioResult(
-      balance: _state.balance,
-      savings: _state.savings,
-      debt: _state.debt,
-      points: _state.points,
-    ));
+  ScenarioResult _result() => ScenarioResult(
+        balance: _state.balance,
+        savings: _state.savings,
+        debt: _state.debt,
+        points: _state.points,
+        goodDecisions: _log.where((e) => e.good).length,
+        totalDecisions: _log.length,
+        errors: _log.where((e) => e.error != null).map((e) => e.error!).toSet().toList(),
+      );
+
+  /// Выход из сценария. Итог применяется только к пройденному сценарию;
+  /// при выходе посередине изменения отбрасываются (после подтверждения).
+  Future<void> _exit() async {
+    final navigator = Navigator.of(context);
+    if (_finished) {
+      navigator.pop(_result());
+      return;
+    }
+    if (_log.isEmpty) {
+      navigator.pop();
+      return;
+    }
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Выйти из сценария?'),
+        content: const Text('Сценарий не завершён. Выбранные решения не сохранятся.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Остаться')),
+          TextButton(
+            key: const ValueKey('scenario-leave'),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Выйти'),
+          ),
+        ],
+      ),
+    );
+    if (leave == true && mounted) navigator.pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Конец месяца'),
-        leading: IconButton(icon: const Icon(Icons.close), onPressed: _exit),
-      ),
-      body: SafeArea(
-        child: _finished ? _buildResult() : _buildPlay(),
+    return PopScope<ScenarioResult>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _exit();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Конец месяца'),
+          leading: IconButton(
+            key: const ValueKey('scenario-close'),
+            icon: const Icon(Icons.close),
+            onPressed: _exit,
+          ),
+        ),
+        body: SafeArea(
+          child: _finished ? _buildResult() : _buildPlay(),
+        ),
       ),
     );
   }
@@ -227,8 +293,11 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Баланс ${formatMoney(_state.balance)} · Накопления ${formatMoney(_state.savings)}',
-            style: const TextStyle(color: AppColors.mutedLight, fontSize: 13)),
+        Text(
+          'Шаг ${_step + 1} из ${_steps.length} · Баланс ${formatMoney(_state.balance)} · '
+          'Накопления ${formatMoney(_state.savings)} · Долг ${formatMoney(_state.debt)}',
+          style: TextStyle(color: AppColors.muted(context), fontSize: 13),
+        ),
         const SizedBox(height: 12),
         Card(
           color: Theme.of(context).colorScheme.primary,
@@ -270,7 +339,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
                 const SizedBox(height: 6),
                 Text(
                   'Очки: ${picked.points > 0 ? '+' : ''}${picked.points}${picked.error != null ? ' · ошибка: ${picked.error}' : ''}',
-                  style: const TextStyle(color: AppColors.mutedLight, fontSize: 13),
+                  style: TextStyle(color: AppColors.muted(context), fontSize: 13),
                 ),
               ],
             ),
@@ -296,6 +365,12 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
         Text('Итог: Конец месяца', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 6),
         Text('Хороших решений: $good из ${_log.length}. Очки за сценарий: ${total > 0 ? '+' : ''}$total'),
+        const SizedBox(height: 6),
+        Text(
+          'Баланс ${formatMoney(_state.balance)} · Накопления ${formatMoney(_state.savings)} · '
+          'Долг ${formatMoney(_state.debt)}',
+          style: TextStyle(color: AppColors.muted(context), fontSize: 13),
+        ),
         const SizedBox(height: 12),
         for (final e in _log)
           Card(
@@ -304,7 +379,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(e.question, style: const TextStyle(color: AppColors.mutedLight, fontSize: 13)),
+                  Text(e.question, style: TextStyle(color: AppColors.muted(context), fontSize: 13)),
                   const SizedBox(height: 4),
                   Text(e.answer, style: const TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
