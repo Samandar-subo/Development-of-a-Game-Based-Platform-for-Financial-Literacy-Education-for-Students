@@ -7,7 +7,7 @@
 | № | Компонент | Где в репозитории | Статус |
 |---|---|---|---|
 | 1 | Предложение проекта | [01_project_proposal.md](01_project_proposal.md) | ✅ |
-| 2 | Подтверждение актуальности | [02_relevance_evidence.md](02_relevance_evidence.md) | ⚠️ провести 3–5 интервью и заполнить протокол |
+| 2 | Подтверждение актуальности | [02_relevance_evidence.md](02_relevance_evidence.md) | ⚠️ есть опрос (8 ответов, раздел 2.8); провести 3–5 интервью и заполнить протокол |
 | 3 | Обзор литературы (≥12 источников, ≥8 научных) | [03_literature_review.md](03_literature_review.md) | ⚠️ 18 позиций, из них научных 8+; проверить авторы и годы по полным текстам |
 | 4 | Сравнение существующих систем (3–5, 6–10 критериев) | [04_existing_systems.md](04_existing_systems.md), [04a_systems_verification.md](04a_systems_verification.md) | ⚠️ 4 системы, 8 критериев, факты со ссылками; личная проверка частичная: SPENT и FinPro осмотрены, Alatau City и BarsIQ только до входа |
 | 5 | Сравнение технологий (≥3 решения, 2–3 альтернативы) | [05_technology_comparison.md](05_technology_comparison.md) | ✅ |
